@@ -1,0 +1,54 @@
+version: "3.9"
+
+networks:
+  docmost_net:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: docmost_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - docmost_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: docmost_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - docmost_net
+
+  docmost:
+    image: docmost/docmost:latest
+    container_name: docmost
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    ports:
+      - "3111:3000"
+    volumes:
+      - ./data/docmost:/app/data
+    networks:
+      - docmost_net
+
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    restart: unless-stopped
+    ports:
+      - "3112:80"
+    networks:
+      - docmost_net
+
+volumes:
+  redis_data:
