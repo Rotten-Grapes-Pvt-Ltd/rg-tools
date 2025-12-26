@@ -34,6 +34,9 @@ services:
       - redis
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
     ports:
       - "3111:3000"
     volumes:
